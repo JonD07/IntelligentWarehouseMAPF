@@ -5,6 +5,7 @@ import defines
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import imageio
 
 
@@ -66,6 +67,10 @@ class WHMap:
 		self.oneWayMap = False
 		self.filenames = []
 		self.counter = 0
+
+		# Initialize game board
+		self.board = self.initBoard(self.rows, self.columns)
+
 		# Create node map
 		self.nodeMap = [None] * self.rows * self.columns
 		for r in range(0, self.rows):
@@ -208,17 +213,71 @@ class WHMap:
 			whMap[R][C] = tuple(red)
 
 		# Display map
-		map_array = np.array(whMap, dtype=np.uint8)
-		plt.imshow(map_array, interpolation='nearest')
+		# map_array = np.array(whMap, dtype=np.uint8)
+		# plt.figure(map_array, interpolation='nearest')
+		# if defines.MAKE_GIF:
+		# 	# Record file
+		# 	fileName = f'{self.counter}.png'
+		# 	self.filenames.append(fileName)
+		# 	# Save frame
+		# 	plt.savefig(fileName)
+		# 	plt.close()
+		# 	self.counter = self.counter + 1
+		# plt.pause(0.01)
+			
+		self.updateBoard(whMap, self.rows - 1, self.columns + 1)
+
+
+
+	def initBoard(self, numRows, numColumns):
+		# initialize board
+		self.img = plt.figure(figsize=[10, 10])
+		self.img.patch.set_facecolor((1, 1, 1))
+		board = self.img.add_subplot(111)
+
+		return board
+
+
+	def updateBoard(self, whMap, numRows, numColumns):
+		artists = [[None]*numRows]*numColumns
+		self.board.clear()
+
+		# draw grid on board
+		for x in range(numColumns + 1):
+			self.board.plot([x, x], [0, numRows], 'k')
+
+		for y in range(numRows + 1):
+			self.board.plot([0, numColumns], [y, y], 'k')
+
+		# turn board axis off
+		self.board.set_axis_off()
+
+		# scale board to fit in window
+		self.board.set_xlim(0, numColumns)
+		self.board.set_ylim(0, numRows)
+
+		for x in range(numColumns):
+			for y in range(numRows):
+				tileColorUnscaled = whMap[x][y]
+				tileColor = tuple(ti/255 for ti in tileColorUnscaled)
+
+				print("TILE COLOR" + str(tileColor))
+
+				artists[x][y] = mpatches.Rectangle((x, y), 1, 1, color=tileColor)
+				
+				self.board.add_artist(artists[x][y])
+
+		plt.pause(0.1)
+		
 		if defines.MAKE_GIF:
 			# Record file
-			fileName = f'{self.counter}.png'
+			fileName = f'img/{self.counter}.png'
 			self.filenames.append(fileName)
 			# Save frame
 			plt.savefig(fileName)
 			plt.close()
 			self.counter = self.counter + 1
-		plt.pause(0.01)
+
 
 	def printGIF(self):
 		if defines.MAKE_GIF:
