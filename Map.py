@@ -204,20 +204,6 @@ class WHMap:
 				else:
 					print("No color detected")
 			whMap.append(row)
-
-		
-		# Display map
-		# map_array = np.array(whMap, dtype=np.uint8)
-		# plt.figure(map_array, interpolation='nearest')
-		# if defines.MAKE_GIF:
-		# 	# Record file
-		# 	fileName = f'{self.counter}.png'
-		# 	self.filenames.append(fileName)
-		# 	# Save frame
-		# 	plt.savefig(fileName)
-		# 	plt.close()
-		# 	self.counter = self.counter + 1
-		# plt.pause(0.01)
 			
 		self.updateBoard(whMap, self.rows - 1, self.columns + 1, agentQueue)
 
@@ -281,6 +267,7 @@ class WHMap:
 			# Draw robot to board
 			self.board.add_artist(mpatches.Circle((R + 0.5, C + 0.5), radius=0.3, color=robotColor))
 
+			# Add robot ID number to circle
 			self.board.add_artist(plt.text(R + 0.4, C + 0.4, str(agent.ID), color=(1,1,1)))
 
 		plt.pause(0.1)

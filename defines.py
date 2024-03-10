@@ -5,5 +5,7 @@ CONTINUOUS_REPLAN = False
 
 TIME_STEPS = 500
 SHOW_MAP = True
-MAKE_GIF = False
 FILE_PRINT = True
+
+# Does not work
+MAKE_GIF = False
