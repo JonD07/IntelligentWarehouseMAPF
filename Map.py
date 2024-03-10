@@ -67,6 +67,7 @@ class WHMap:
 		self.oneWayMap = False
 		self.filenames = []
 		self.counter = 0
+		self.largestRobotIndex = 1
 
 		# Initialize game board
 		self.board = self.initBoard(self.rows, self.columns)
@@ -204,14 +205,7 @@ class WHMap:
 					print("No color detected")
 			whMap.append(row)
 
-		# Add robots to map
-		for agent in agentQueue:
-			R, C = self.idToRC(agent.nodeLocationID)
-			red = list(RED)
-			red[2] = (agent.ID * 35) % 255
-			red[1] = (agent.ID * 10) % 150
-			whMap[R][C] = tuple(red)
-
+		
 		# Display map
 		# map_array = np.array(whMap, dtype=np.uint8)
 		# plt.figure(map_array, interpolation='nearest')
@@ -225,7 +219,7 @@ class WHMap:
 		# 	self.counter = self.counter + 1
 		# plt.pause(0.01)
 			
-		self.updateBoard(whMap, self.rows - 1, self.columns + 1)
+		self.updateBoard(whMap, self.rows - 1, self.columns + 1, agentQueue)
 
 
 
@@ -238,7 +232,7 @@ class WHMap:
 		return board
 
 
-	def updateBoard(self, whMap, numRows, numColumns):
+	def updateBoard(self, whMap, numRows, numColumns, agentQueue):
 		artists = [[None]*numRows]*numColumns
 		self.board.clear()
 
@@ -261,11 +255,33 @@ class WHMap:
 				tileColorUnscaled = whMap[x][y]
 				tileColor = tuple(ti/255 for ti in tileColorUnscaled)
 
-				print("TILE COLOR" + str(tileColor))
-
+				# print("TILE COLOR" + str(tileColor))
 				artists[x][y] = mpatches.Rectangle((x, y), 1, 1, color=tileColor)
 				
 				self.board.add_artist(artists[x][y])
+		if len(agentQueue) > 0:
+			lowIndex = agentQueue[0].ID
+			highIndex = agentQueue[len(agentQueue) - 1].ID
+			length = max(highIndex - lowIndex, 1)
+		else:
+			lowIndex = 0
+			highIndex = 0
+			length = 1
+
+		# Add robots to map
+		for agent in agentQueue:
+			
+
+			R, C = self.idToRC(agent.nodeLocationID)
+
+			# Set color
+			robotColor = ((agent.ID - lowIndex) / length, 0.3, 1 - (agent.ID - lowIndex) / length)
+			# print("Robot ID: " + str(agent.ID) + ", Robot color: " + str(robotColor))
+			
+			# Draw robot to board
+			self.board.add_artist(mpatches.Circle((R + 0.5, C + 0.5), radius=0.3, color=robotColor))
+
+			self.board.add_artist(plt.text(R + 0.4, C + 0.4, str(agent.ID), color=(1,1,1)))
 
 		plt.pause(0.1)
 		

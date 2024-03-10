@@ -32,7 +32,7 @@ class Agent:
 			self.Y += dy
 
 	def update(self):
-		print("Updating agent position!")
+		# print("Updating agent position!")
 		self.lifeTime = self.lifeTime + 1
 		if self.tour:
 			if self.contReplan and self.lifeTime % 3 == 0:
