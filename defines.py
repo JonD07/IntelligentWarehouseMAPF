@@ -1,7 +1,7 @@
-FILE = "map2.csv"
-BACK_TRACKING = True
+FILE = "inputs/human_input_0.csv"
+BACK_TRACKING = False
 DYNAMIC_REPLAN = False
-CONTINUOUS_REPLAN = False
+CONTINUOUS_REPLAN = True
 
 TIME_STEPS = 500
 SHOW_MAP = True
