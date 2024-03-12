@@ -13,6 +13,8 @@ if __name__ == '__main__':
 	whMap = WHMap()
 	tasksComplete = 0
 	runningTime = 0
+	if len(sys.argv) > 1:
+		random.seed(sys.argv[1])
 
 	# Main simulation loop, runs once per time-step
 	for i in range(0, defines.TIME_STEPS):

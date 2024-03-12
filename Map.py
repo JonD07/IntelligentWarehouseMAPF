@@ -25,6 +25,8 @@ DOWN = 'D'
 LEFT = 'L'
 RIGHT = 'R'
 
+DEBUG = False
+
 
 def oppositeMove(moveA, moveB):
 	test1 = (moveA == DOWN and moveB == UP)
@@ -176,8 +178,9 @@ class WHMap:
 						if c == self.columns - 1:
 							self.rightNodes.append(id)
 		# Sanity prints
-		for n in self.nodeMap:
-			print(n.id, " : ", n.neighbors)
+		if DEBUG:
+			for n in self.nodeMap:
+				print(n.id, " : ", n.neighbors)
 
 	def idToRC(self, id):
 		r = id // self.columns
