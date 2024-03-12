@@ -205,7 +205,8 @@ class WHMap:
 					print("No color detected")
 			whMap.append(row)
 			
-		self.updateBoard(whMap, self.rows - 1, self.columns + 1, agentQueue)
+			
+		self.updateBoard(whMap, self.rows, self.columns, agentQueue)
 
 
 
@@ -219,14 +220,14 @@ class WHMap:
 
 
 	def updateBoard(self, whMap, numRows, numColumns, agentQueue):
-		artists = [[None]*numRows]*numColumns
+		artists = [[None]*numColumns]*numRows
 		self.board.clear()
 
 		# draw grid on board
-		for x in range(numColumns + 1):
+		for x in range(numColumns+1):
 			self.board.plot([x, x], [0, numRows], 'k')
 
-		for y in range(numRows + 1):
+		for y in range(numRows+1):
 			self.board.plot([0, numColumns], [y, y], 'k')
 
 		# turn board axis off
@@ -236,15 +237,16 @@ class WHMap:
 		self.board.set_xlim(0, numColumns)
 		self.board.set_ylim(0, numRows)
 
-		for x in range(numColumns):
-			for y in range(numRows):
+		for x in range(numRows):
+			for y in range(numColumns):
 				tileColorUnscaled = whMap[x][y]
 				tileColor = tuple(ti/255 for ti in tileColorUnscaled)
 
 				# print("TILE COLOR" + str(tileColor))
-				artists[x][y] = mpatches.Rectangle((x, y), 1, 1, color=tileColor)
+				artists[x][y] = mpatches.Rectangle((y, (numRows-1)-x), 1, 1, color=tileColor)
 				
 				self.board.add_artist(artists[x][y])
+
 		if len(agentQueue) > 0:
 			lowIndex = agentQueue[0].ID
 			highIndex = agentQueue[len(agentQueue) - 1].ID
@@ -265,10 +267,10 @@ class WHMap:
 			# print("Robot ID: " + str(agent.ID) + ", Robot color: " + str(robotColor))
 			
 			# Draw robot to board
-			self.board.add_artist(mpatches.Circle((R + 0.5, C + 0.5), radius=0.3, color=robotColor))
+			self.board.add_artist(mpatches.Circle((C + 0.5, (numRows-1)-R + 0.5), radius=0.3, color=(1,0,0)))
 
 			# Add robot ID number to circle
-			self.board.add_artist(plt.text(R + 0.4, C + 0.4, str(agent.ID), color=(1,1,1)))
+			self.board.add_artist(plt.text(C + 0.4, (numRows-1)-R + 0.4, str(agent.ID), color=(1,1,1)))
 
 		plt.pause(0.1)
 		
