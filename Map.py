@@ -109,6 +109,8 @@ class WHMap:
 									not self.nodeMap[id].type == DOWN and \
 									not oppositeMove(self.nodeMap[id].type, self.nodeMap[ngID].type):
 								self.nodeMap[id].neighbors.append(ngID)
+							elif emptyTypeNode(self.nodeMap[id].type):
+								self.targetNodes.append(id)
 						if c + 1 < self.columns:
 							ngID = r * self.columns + (c+1)
 							if not self.nodeMap[ngID].type == SHELF and not self.nodeMap[ngID].type == LEFT and \
@@ -123,6 +125,8 @@ class WHMap:
 									not self.nodeMap[id].type == UP and \
 									not oppositeMove(self.nodeMap[id].type, self.nodeMap[ngID].type):
 								self.nodeMap[id].neighbors.append(ngID)
+							elif emptyTypeNode(self.nodeMap[id].type):
+								self.targetNodes.append(id)
 						if c - 1 >= 0:
 							ngID = r * self.columns + (c-1)
 							if not self.nodeMap[ngID].type == SHELF and not self.nodeMap[ngID].type == RIGHT and \

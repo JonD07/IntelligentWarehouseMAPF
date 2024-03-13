@@ -1,10 +1,10 @@
-FILE = "inputs/human_input_0.csv"
+FILE = "inputs/chat_input_0.csv"
 BACK_TRACKING = False
 DYNAMIC_REPLAN = False
 CONTINUOUS_REPLAN = True
 
 TIME_STEPS = 500
-SHOW_MAP = True
+SHOW_MAP = False
 FILE_PRINT = True
 
 # Does not work
