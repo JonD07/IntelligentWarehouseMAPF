@@ -31,15 +31,24 @@ if __name__ == '__main__':
 	defines.set_algo(algorithm)
 	whMap = WHMap(file)
 
+	# Generate a list of random numbers so that every run is the same
+	rands = []
+	all_tasks = []
+	print("Generating rands")
+	for i in range(0, defines.TIME_STEPS + 1):
+		rands.append(random.random())
+		task = [random.choice(whMap.startNodes), random.choice(whMap.targetNodes), random.choice(whMap.goalNodes)]
+		all_tasks.append(task)
+
 	# Main simulation loop, runs once per time-step
 	for i in range(0, defines.TIME_STEPS):
 		print("Running Time-Step Updates")
 
 		# Randomly generate new agents
-		rnd = random.random()
+		rnd = rands[i]
 		if rnd < 0.25:
 			# Create a new task
-			task = [random.choice(whMap.startNodes), random.choice(whMap.targetNodes), random.choice(whMap.goalNodes)]
+			task = all_tasks.pop()
 			task_queue.append(task)
 		if len(agentQueue) < 10 and len(task_queue) > 0:
 			task = task_queue.popleft()

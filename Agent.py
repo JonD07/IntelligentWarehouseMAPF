@@ -63,16 +63,17 @@ class Agent:
 			# Verify that we have a valid row
 			if rndRow < 0:
 				rndRow = 0
-			elif rndRow > self.nMap.rows:
+			elif rndRow > self.nMap.rows-1:
 				rndRow = self.nMap.rows-1
 			# Pick a random column
 			rndColumn = random.choice(columns)
 			# Verify that we have a valid column
 			if rndColumn < 0:
 				rndColumn = 0
-			elif rndColumn > self.nMap.columns:
+			elif rndColumn > self.nMap.columns-1:
 				rndColumn = self.nMap.columns-1
 			rndNode = self.nMap.RCToID(rndRow, rndColumn)
+			print("Random node:", rndNode)
 
 			if not self.foundTarget:
 				# Route to target
