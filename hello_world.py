@@ -4,33 +4,50 @@ import random
 import time
 import defines
 import sys
+from collections import deque
 
 
 if __name__ == '__main__':
 	print("hello world!")
 	agentQueue = []
 	agentIDs = 0
-	whMap = WHMap()
+	task_queue = deque()
 	tasksComplete = 0
 	runningTime = 0
-	if len(sys.argv) > 1:
-		random.seed(sys.argv[1])
+	algorithm = 0
+	file = "inputs/chat_input_1.csv"
+
+	# Input format: algorithm-flag, random-seed, map-file
+	if len(sys.argv) > 3:
+		file = sys.argv[3]
+		random.seed(sys.argv[2])
+		algorithm = int(sys.argv[1])
+	elif len(sys.argv) > 2:
+		random.seed(sys.argv[2])
+		algorithm = int(sys.argv[1])
+	elif len(sys.argv) > 1:
+		algorithm = int(sys.argv[1])
+	
+	defines.set_algo(algorithm)
+	whMap = WHMap(file)
 
 	# Main simulation loop, runs once per time-step
 	for i in range(0, defines.TIME_STEPS):
-		# agentQueue, agentIDs = runTSUpdates(agentQueue, agentIDs, whMap)
 		print("Running Time-Step Updates")
 
 		# Randomly generate new agents
 		rnd = random.random()
 		if rnd < 0.25:
-			if not defines.BACK_TRACKING or len(agentQueue) < 10:
-				# Create a new agent
-				print("Creating new agent ", agentIDs)
-				agentQueue.append(Agent.Agent(agentIDs, whMap, random.choice(whMap.startNodes),
-				                         random.choice(whMap.targetNodes),
-				                         random.choice(whMap.goalNodes)))
-				agentIDs += 1
+			# Create a new task
+			task = [random.choice(whMap.startNodes), random.choice(whMap.targetNodes), random.choice(whMap.goalNodes)]
+			task_queue.append(task)
+		if len(agentQueue) < 10 and len(task_queue) > 0:
+			task = task_queue.popleft()
+			print(task)
+			# Create a new agent
+			print("Creating new agent ", agentIDs)
+			agentQueue.append(Agent.Agent(agentIDs, whMap, task[0],task[1],task[2]))
+			agentIDs += 1
 
 		# Run updates on each agent
 		for agent in agentQueue:

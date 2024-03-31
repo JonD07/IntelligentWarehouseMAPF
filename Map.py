@@ -50,10 +50,10 @@ class Node(object):
 
 class WHMap:
 	# Class constructor
-	def __init__(self):
+	def __init__(self,file):
 		results = []
 		# Read map from .csv
-		with open(defines.FILE) as csvfile:
+		with open(file) as csvfile:
 			reader = csv.reader(csvfile)  # change contents to floats
 			for row in reader:  # each row is a list
 				results.append(row)
@@ -190,6 +190,10 @@ class WHMap:
 		r = id // self.columns
 		c = id - (self.columns * r)
 		return r, c
+
+	def RCToID(self, r, c):
+		id = r*self.columns+c
+		return id
 
 	def updateMap(self, agentQueue):
 		# Create current warehouse map
