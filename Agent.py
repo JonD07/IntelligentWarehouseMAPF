@@ -13,15 +13,16 @@ class Agent:
 		self.targetID = targetID
 		# Goal location
 		self.goalID = goalID
-		frntTour = self.nMap.biDir_BFS(nID, targetID)
-		bckTour = self.nMap.biDir_BFS(targetID, goalID)
+		frntTour = self.nMap.find_path(nID, targetID)
+		bckTour = self.nMap.find_path(targetID, goalID)
 		self.tour = frntTour + bckTour
 		self.waiting = False
 		self.foundTarget = False
-		self.backTracking = defines.BACK_TRACKING
 		self.dynReplan = defines.DYNAMIC_REPLAN
 		self.contReplan = defines.CONTINUOUS_REPLAN
 		self.lifeTime = 0
+		self.stepsStuck = 0
+		self.maxStepsStuck = 0
 		# print(self.tour)
 
 	# Well-defined position update
@@ -36,15 +37,15 @@ class Agent:
 		backTracking = False
 		# Try to find a path
 		if not self.foundTarget:
-			segment1 = self.nMap.biDir_BFS(self.nodeLocationID, self.targetID, True)
-			segment2 = self.nMap.biDir_BFS(self.targetID, self.goalID, True)
+			segment1 = self.nMap.find_path(self.nodeLocationID, self.targetID, True)
+			segment2 = self.nMap.find_path(self.targetID, self.goalID, True)
 			if not segment1 == [] and not segment2 == []:
 				segment1.pop(0)
 				self.tour = segment1 + segment2
 			else:
 				backTracking = True
 		else:
-			seg = self.nMap.biDir_BFS(self.nodeLocationID, self.goalID, True)
+			seg = self.nMap.find_path(self.nodeLocationID, self.goalID, True)
 			if not seg == []:
 				seg.pop(0)
 				self.tour = seg
@@ -77,15 +78,15 @@ class Agent:
 
 			if not self.foundTarget:
 				# Route to target
-				frntTour = self.nMap.biDir_BFS(self.nodeLocationID, rndNode)
-				bckTour = self.nMap.biDir_BFS(rndNode, self.targetID)
+				frntTour = self.nMap.find_path(self.nodeLocationID, rndNode)
+				bckTour = self.nMap.find_path(rndNode, self.targetID)
 				segment1 = frntTour + bckTour
 				# route to goal
-				segment2 = self.nMap.biDir_BFS(self.targetID, self.goalID)
+				segment2 = self.nMap.find_path(self.targetID, self.goalID)
 			else:
 				# Route to goal
-				segment1 = self.nMap.biDir_BFS(self.nodeLocationID, rndNode)
-				segment2 = self.nMap.biDir_BFS(rndNode, self.goalID)
+				segment1 = self.nMap.find_path(self.nodeLocationID, rndNode)
+				segment2 = self.nMap.find_path(rndNode, self.goalID)
 			self.tour = segment1 + segment2
 
 
@@ -101,10 +102,12 @@ class Agent:
 			self.replanPath()
 		if self.tour:
 			nextNode = self.tour[0]
+			# Increase stuck steps
+			self.stepsStuck += 1
 			if nextNode == self.nodeLocationID:
 				# We are already at this location...
 				self.tour.pop(0)
-			elif not self.nMap.nodeMap[nextNode].occupied:
+			elif not self.nMap.nodeMap[nextNode].occupied or defines.LOWER_BOUND:
 				# More to the next cell
 				self.nMap.nodeMap[self.nodeLocationID].occupied = False
 				self.nodeLocationID = nextNode
@@ -113,6 +116,10 @@ class Agent:
 				self.waiting = False
 				if self.nodeLocationID == self.targetID:
 					self.foundTarget = True
+				# Update stuck-steps
+				if self.maxStepsStuck < self.stepsStuck:
+					self.maxStepsStuck = self.stepsStuck
+				self.stepsStuck = 0
 			elif self.nMap.nodeMap[nextNode].occupied and defines.DYNAMIC_REPLAN:
 				if not self.waiting:
 					self.waiting = True
@@ -125,10 +132,10 @@ class Agent:
 			# We lost the tour...
 			print("No tour!")
 			if not self.foundTarget:
-				frntTour = self.nMap.biDir_BFS(self.nodeLocationID, self.targetID)
-				bckTour = self.nMap.biDir_BFS(self.targetID, self.goalID)
+				frntTour = self.nMap.find_path(self.nodeLocationID, self.targetID)
+				bckTour = self.nMap.find_path(self.targetID, self.goalID)
 				self.tour = frntTour + bckTour
 			else:
-				self.tour = self.nMap.biDir_BFS(self.nodeLocationID, self.goalID)
+				self.tour = self.nMap.find_path(self.nodeLocationID, self.goalID)
 
 		return False

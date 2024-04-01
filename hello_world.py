@@ -13,6 +13,7 @@ if __name__ == '__main__':
 	agentIDs = 0
 	task_queue = deque()
 	tasksComplete = 0
+	longestStuck = 0
 	runningTime = 0
 	algorithm = 0
 	file = "inputs/chat_input_1.csv"
@@ -50,7 +51,7 @@ if __name__ == '__main__':
 			# Create a new task
 			task = all_tasks.pop()
 			task_queue.append(task)
-		if len(agentQueue) < 10 and len(task_queue) > 0:
+		if len(agentQueue) < defines.MAX_ROBOTS and len(task_queue) > 0:
 			task = task_queue.popleft()
 			print(task)
 			# Create a new agent
@@ -63,6 +64,8 @@ if __name__ == '__main__':
 			if agent.update():
 				tasksComplete = tasksComplete + 1
 				runningTime = runningTime + agent.lifeTime
+				if longestStuck < agent.maxStepsStuck:
+					longestStuck = agent.maxStepsStuck
 				agentQueue.remove(agent)
 
 		if defines.SHOW_MAP:
@@ -71,6 +74,11 @@ if __name__ == '__main__':
 
 		print("Competed step: ", i)
 		time.sleep(0.1)
+	
+	# Hit the end... check all remaining agents to see how long they were stuck
+	for agent in agentQueue:
+		if longestStuck < agent.maxStepsStuck:
+			longestStuck = agent.maxStepsStuck
 
 	# Report results
 	if defines.FILE_PRINT:
@@ -80,7 +88,7 @@ if __name__ == '__main__':
 		with open('results.txt', 'a') as f:
 			# Set standard out to print to file
 			sys.stdout = f
-			print(tasksComplete, ", ", runningTime, ", ", runningTime/tasksComplete)
+			print(algorithm, tasksComplete, runningTime/tasksComplete, longestStuck, file)
 			# Reset standard out
 			sys.stdout = original_stdout
 

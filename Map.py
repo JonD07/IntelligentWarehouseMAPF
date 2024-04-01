@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import imageio
+import math
+import heapq
 
 
 # Grid colors
@@ -304,8 +306,15 @@ class WHMap:
 			# Remove files
 			for filename in set(self.filenames):
 				os.remove(filename)
+	
+	def find_path(self, startID, endID, ignoreOccupied=False):
+		if defines.ASTAR:
+			return self.astar_search(startID, endID, ignoreOccupied)
+		else:
+			return self.biDir_BFS(startID, endID, ignoreOccupied)
 
-	def biDir_BFS(self, startID, endID, ignoreOccupied=False):
+
+	def biDir_BFS(self, startID, endID, ignoreOccupied):
 		# print("Find path: ", startID, endID)
 		root = [None] * self.rows * self.columns
 		for r in range(0, len(root)):
@@ -353,3 +362,77 @@ class WHMap:
 		# print("")
 		# print(result)
 		return result
+	
+	def heuristic(self, start_cell, goal_cell):
+		start_row, start_col = self.idToRC(start_cell)
+		goal_row, goal_col = self.idToRC(goal_cell)
+		dist = math.sqrt((start_col - goal_col)**2 + (start_row - goal_row)**2)
+		return dist
+
+
+	def set_next_cell(self, open_list, f):
+		best = -1
+		min_cost = 10000000000
+		for cell in open_list:
+			if min_cost > f[cell]:
+				min_cost = f[cell]
+				best = cell
+		return best
+
+
+	def astar_search(self, startID, endID, ignoreOccupied):
+		# Initialize root array to keep track of parent nodes
+		root = [-1] * (self.rows * self.columns)
+		# Initialize the open list (priority queue)
+		visited = [False] * (self.rows * self.columns)
+		# Initialize cost-to-go map
+		f = [float('inf')] * (self.rows * self.columns)
+		# Initialize cost map
+		g = [float('inf')] * (self.rows * self.columns)
+		# Open list
+		open_list = []
+
+		# Put the start node on the open list
+		open_list.append(startID)
+		root[startID] = startID
+		f[startID] = self.heuristic(startID, endID)
+		g[startID] = 0
+		visited[startID] = True
+
+		while open_list:
+			# Get next best option from the open list
+			current = self.set_next_cell(open_list, f)
+			open_list.remove(current)
+
+			if current == endID:
+				# Determine resulting tour
+				result = []
+				crNode = endID
+				result.append(crNode)
+				while not crNode == startID:
+					crNode = root[crNode]
+					result.insert(0, crNode)
+				return result
+
+			# Check neighbors of next
+			for nbr in self.nodeMap[current].neighbors:
+				if not visited[nbr]:
+					if ignoreOccupied:
+						if not self.nodeMap[nbr].occupied:
+							# Found route to nbr, add to found
+							open_list.append(nbr)
+							root[nbr] = current
+							f[nbr] = self.heuristic(nbr, endID)
+							g[nbr] = g[current] + 1
+							visited[nbr] = True
+					else:
+						# Found route to nbr, add to found
+						open_list.append(nbr)
+						root[nbr] = current
+						f[nbr] = self.heuristic(nbr, endID)
+						g[nbr] = g[current] + 1
+						visited[nbr] = True
+
+		# No path found
+		return []
+
