@@ -93,6 +93,7 @@ class Agent:
 	def update(self):
 		# print("Updating agent position!")
 		self.lifeTime = self.lifeTime + 1
+		self.stepsStuck += 1
 		if self.nodeLocationID == self.goalID:
 			self.nMap.nodeMap[self.nodeLocationID].occupied = False
 			return True
@@ -103,7 +104,6 @@ class Agent:
 		if self.tour:
 			nextNode = self.tour[0]
 			# Increase stuck steps
-			self.stepsStuck += 1
 			if nextNode == self.nodeLocationID:
 				# We are already at this location...
 				self.tour.pop(0)
@@ -117,8 +117,6 @@ class Agent:
 				if self.nodeLocationID == self.targetID:
 					self.foundTarget = True
 				# Update stuck-steps
-				if self.maxStepsStuck < self.stepsStuck:
-					self.maxStepsStuck = self.stepsStuck
 				self.stepsStuck = 0
 			elif self.nMap.nodeMap[nextNode].occupied and defines.DYNAMIC_REPLAN:
 				if not self.waiting:
@@ -137,5 +135,8 @@ class Agent:
 				self.tour = frntTour + bckTour
 			else:
 				self.tour = self.nMap.find_path(self.nodeLocationID, self.goalID)
+	
+		if self.maxStepsStuck < self.stepsStuck:
+			self.maxStepsStuck = self.stepsStuck
 
 		return False

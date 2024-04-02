@@ -80,22 +80,28 @@ if __name__ == '__main__':
 		if longestStuck < agent.maxStepsStuck:
 			longestStuck = agent.maxStepsStuck
 
+
+	# Set standard out to print to file
+	if tasksComplete == 0:
+		avg_time = float('inf')
+	else:
+		avg_time = runningTime/tasksComplete
+
 	# Report results
 	if defines.FILE_PRINT:
 		# Save current standard out setting
 		original_stdout = sys.stdout
 		# Open a file
 		with open('results.txt', 'a') as f:
-			# Set standard out to print to file
 			sys.stdout = f
-			print(algorithm, tasksComplete, runningTime/tasksComplete, longestStuck, file)
+			print(algorithm, tasksComplete, avg_time, longestStuck, file)
 			# Reset standard out
 			sys.stdout = original_stdout
 
 	print("")
 	print("Tasks complete: ", tasksComplete)
-	print("Total robot time: ", runningTime)
-	print("Average time: ", runningTime/tasksComplete)
+	print("Average time: ", avg_time)
+	print("Max Wait: ", longestStuck)
 
 	if defines.MAKE_GIF:
 		whMap.printGIF()
